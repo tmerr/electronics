@@ -8,7 +8,6 @@
 
 AnalogIn   knob0(A0);
 AnalogIn   knob1(A1);
-DigitalOut dout(LED1);
 AnalogIn   knob2(A2);
 AnalogIn   knob3(A3);
 
