@@ -13,11 +13,11 @@
 <div>Z axis: ...</div>
 
 <form action="feed" method="get">
-<input type="submit" value="Feed">
+<input type="submit" value="Feed" class="medbutton">
 </form>
 
 <form action="unfeed" method="get">
-<input type="submit" value="Unfeed">
+<input type="submit" value="Unfeed" class="medbutton">
 </form>
 
 </body>
