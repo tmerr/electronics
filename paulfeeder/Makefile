@@ -1,4 +1,7 @@
 PORT = /dev/ttyUSB0
+preview:
+	python3 buildhtml.py
+	firefox build/index.html
 upload:
 	python3 buildhtml.py
 	arduino --upload paulfeeder.ino --port $(PORT)
