@@ -1,6 +1,7 @@
 #include <AccelStepper.h>
 #include "StepperControl.hpp"
 #include "WebServer.hpp"
+#define SENSORPIN A0
 
 StepperControl control;
 WebServer server;
@@ -20,6 +21,9 @@ void setup() {
 }
 
 void loop() {
+  int z = analogRead(SENSORPIN);
+  control.setZ(z);
+  server.setZ(z);
   control.loop();
   for (int i=0; i<1000; ++i) {
     server.loop();

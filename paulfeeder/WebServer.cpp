@@ -5,6 +5,7 @@
 #include "build/index.hpp"
 
 WebServer::WebServer(): server(80) {
+    this->z = 0;
 }
 
 void WebServer::setup(char* ssid, char* password) {
@@ -41,6 +42,15 @@ void WebServer::setup(char* ssid, char* password) {
     server.send(200, "text/plain", "unfeeding");
   });
 
+  server.on("/state", [&](){
+    String json = "{\"ip\": \"";
+    json += WiFi.localIP().toString();
+    json += "\",\"z\": ";
+    json += String(this->z);
+    json += "}";
+    server.send(200, "application/json", json);
+  });
+
   server.onNotFound([&](){
       String message = "File Not Found\n\n";
       message += "URI: ";
@@ -70,4 +80,8 @@ void WebServer::registerFeedCallback(std::function<void(void)> f) {
 
 void WebServer::registerUnfeedCallback(std::function<void(void)> f) {
   this->unfeedCallback = f;
+}
+
+void WebServer::setZ(int val) {
+  this->z = val;
 }

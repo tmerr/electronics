@@ -1,7 +1,6 @@
 #include "StepperControl.hpp"
 
 #define HALFSTEP 8
-#define SENSORPIN A0
 #define ZDOWN 350
 #define ZUP 630
 
@@ -23,17 +22,19 @@ void StepperControl::loop() {
 }
 
 void StepperControl::goDown() {
-  int zaxis = analogRead(SENSORPIN);
-  if (zaxis < (ZDOWN + ZUP)/2) {
+  if (this->z < (ZDOWN + ZUP)/2) {
     stepper.enableOutputs();
     stepper.move(-2048);
   }
 }
 
 void StepperControl::goUp() {
-  int zaxis = analogRead(SENSORPIN);
-  if (zaxis > (ZDOWN + ZUP)/2) {
+  if (this->z > (ZDOWN + ZUP)/2) {
     stepper.enableOutputs();
     stepper.move(2048);
   }
+}
+
+void StepperControl::setZ(int val) {
+  this->z = val;
 }

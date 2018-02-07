@@ -14,10 +14,12 @@ def generate_html():
         template = f1.read()
     with open('style.css') as f2:
         style = f2.read()
+    with open('script.js') as f3:
+        script = f3.read()
 
-    html = template.format(style=style)
-    with open('build/index.html', 'w') as f3:
-        f3.write(html)
+    html = template.format(style=style, script=script)
+    with open('build/index.html', 'w') as f4:
+        f4.write(html)
 
 
 def generate_header():

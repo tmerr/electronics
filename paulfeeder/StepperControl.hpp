@@ -9,8 +9,10 @@ public:
   void loop();
   void goUp();
   void goDown();
+  void setZ(int val);
 
 private:
   AccelStepper stepper;
+  int z;
 };
 #endif

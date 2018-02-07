@@ -10,10 +10,12 @@ public:
   void loop();
   void registerFeedCallback(std::function<void(void)> f);
   void registerUnfeedCallback(std::function<void(void)> f);
+  void setZ(int val);
 
 private:
   ESP8266WebServer server;
   std::function<void(void)> feedCallback;
   std::function<void(void)> unfeedCallback;
+  int z;
 };
 #endif

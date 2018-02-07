@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="utf-8">
 <style>
 {style}
 </style>
@@ -9,16 +10,15 @@
 </head>
 <body>
 <div>Hello this is paul feeder!</div>
-<div>Local IP address: ...</div>
-<div>Z axis: ...</div>
+<div>Local IP: <span id="ipval"></span></div>
+<div>Z axis: <span id="zval"></span></div>
+<canvas id="zcanvas" width="400" height="400"></canvas>
 
-<form action="feed" method="get">
-<input type="submit" value="Feed" class="medbutton">
-</form>
-
-<form action="unfeed" method="get">
-<input type="submit" value="Unfeed" class="medbutton">
-</form>
+<div>
+<button id="feedbutton" class="medbutton">Feed</button>
+<button id="unfeedbutton" class="medbutton">Unfeed</button>
+</div>
 
 </body>
+<script>{script}</script>
 </html>
