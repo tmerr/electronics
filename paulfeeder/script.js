@@ -3,7 +3,6 @@ $('#feedbutton').click((e) => {
     $.ajax({
         url: '/feed',
         success: () => {
-            alert('Feeding!');
         },
         error: () => {
             alert('Action failed');
@@ -16,7 +15,6 @@ $('#unfeedbutton').click((e) => {
     $.ajax({
         url: '/unfeed',
         success: () => {
-            alert('Unfeeding!');
         },
         error: () => {
             alert('Action failed');
@@ -41,6 +39,7 @@ window.setInterval(() => {
         success: (state) => {
             document.getElementById('ipval').innerHTML = state.ip;
             document.getElementById('zval').innerHTML = state.z;
+            document.getElementById('mode').innerHTML = state.mode;
             const unitz = (state.z - zmid)/((zup - zdown)/2);
             const clamped = Math.min(1, Math.max(-1, unitz));
             const radians = Math.acos(clamped);
@@ -60,6 +59,7 @@ window.setInterval(() => {
         error: () => {
             document.getElementById('ipval').innerHTML = 'Failed to update state';
             document.getElementById('zval').innerHTML = 'Failed to update state';
+            document.getElementById('mode').innerHTML = 'Failed to update state';
         },
         timeout: 500
     });

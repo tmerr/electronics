@@ -1,3 +1,4 @@
+#include "Mode.hpp"
 #include "WebServer.hpp"
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -47,7 +48,21 @@ void WebServer::setup(char* ssid, char* password) {
     json += WiFi.localIP().toString();
     json += "\",\"z\": ";
     json += String(this->z);
-    json += "}";
+    json += ",\"mode\": \"";
+    switch (this->mode) {
+    case Mode::idle:
+      json += "idle";
+      break;
+
+    case Mode::feeding:
+      json += "feeding";
+      break;
+
+    case Mode::unfeeding:
+      json += "unfeeding";
+      break;
+    }
+    json += "\"}";
     server.send(200, "application/json", json);
   });
 
@@ -84,4 +99,8 @@ void WebServer::registerUnfeedCallback(std::function<void(void)> f) {
 
 void WebServer::setZ(int val) {
   this->z = val;
+}
+
+void WebServer::setMode(Mode modearg) {
+  this->mode = modearg;
 }

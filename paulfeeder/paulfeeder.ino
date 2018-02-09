@@ -23,6 +23,7 @@ void setup() {
 void loop() {
   int z = analogRead(SENSORPIN);
   control.setZ(z);
+  server.setMode(control.getMode());
   server.setZ(z);
   control.loop();
   for (int i=0; i<1000; ++i) {

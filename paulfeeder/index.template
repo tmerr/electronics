@@ -12,6 +12,7 @@
 <div>Hello this is paul feeder!</div>
 <div>Local IP: <span id="ipval"></span></div>
 <div>Z axis: <span id="zval"></span></div>
+<div>Mode: <span id="mode"></span></div>
 <canvas id="zcanvas" width="400" height="400"></canvas>
 
 <div>
