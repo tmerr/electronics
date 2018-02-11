@@ -1,0 +1,8 @@
+﻿"topSize"=25
+"bottomExtra"=5
+"notchSize"=10
+"bottom"="topSize"+"bottomExtra"
+"notchHolderSize"="notchSize"+0.3
+"notchHeight"=2
+"notchHolderHeight"="notchHeight"
+"bottomHeight"=2
