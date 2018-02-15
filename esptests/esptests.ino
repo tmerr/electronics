@@ -14,16 +14,11 @@ void setup() {
     last = micros();
 }
 
-//void writeSawtooth(unsigned int cycle) {
-//    analogWrite(D8, (cycle % CLOCKS_PER_CYCLE)/CLOCKS_PER_CYCLE);
-//}
-
 void loop() {
     unsigned now = micros();
     if (now > last + 2273/1024) {
         anything = (anything + 1) % 1024;
         last = now;
-        //writeSawtooth(anything);
         analogWrite(D8, anything);
     }
 }
