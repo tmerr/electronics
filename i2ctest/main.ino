@@ -88,7 +88,7 @@ void begin_i2s(uint32_t input_clock_prescaler, uint32_t communication_clock_freq
 						(I2S_BITS_MOD<<I2S_BITS_MOD_S)|
 						(I2S_BCK_DIV_NUM <<I2S_BCK_DIV_NUM_S)|
 						(I2S_CLKM_DIV_NUM<<I2S_CLKM_DIV_NUM_S));
-	SET_PERI_REG_MASK(I2SCONF, I2S_RIGHT_FIRST|I2S_MSB_RIGHT|I2S_TRANS_MSB_SHIFT|
+	SET_PERI_REG_MASK(I2SCONF,
 						(((communication_clock_freq_divider)&I2S_BCK_DIV_NUM ) << I2S_BCK_DIV_NUM_S)|
 						(((input_clock_prescaler)&I2S_CLKM_DIV_NUM) << I2S_CLKM_DIV_NUM_S));
 
@@ -110,7 +110,7 @@ void init_reglist() {
 void setup() {
     init_reglist();
     begin_slc_i2s(reglist);
-    begin_i2s(8, 10);
+    begin_i2s(1, 1);
 }
 
 void loop() {
