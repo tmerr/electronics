@@ -65,6 +65,7 @@ void begin_slc_i2s(struct registration_list* reglist) {
 
 // Start the I2S module.
 void begin_i2s(uint32_t input_clock_prescaler, uint32_t communication_clock_freq_divider) {
+    PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDO_U, FUNC_I2SO_BCK);
     PIN_FUNC_SELECT(PERIPHS_IO_MUX_U0RXD_U, FUNC_I2SO_DATA);
 
     // 10.2.1.1.12S
@@ -95,7 +96,7 @@ void begin_i2s(uint32_t input_clock_prescaler, uint32_t communication_clock_freq
 }
 
 void init_reglist() {
-    samplebuffer[0] = 0xAAAAAAAA; // Make it mostly on but not entirely
+    samplebuffer[0] = 0x137F0000; // Make it mostly on but not entirely
     reglist[0].blocksize = 4 * BUFFERLEN;
     reglist[0].datalen = 4 * BUFFERLEN;
     reglist[0].unused = 0;
