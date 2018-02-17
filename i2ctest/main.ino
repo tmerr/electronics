@@ -10,7 +10,8 @@ void rom_i2c_writeReg_Mask(int, int, int, int, int, int);
 
 #include "slc_register.h"
 #include "i2s_reg.h"
-#define BUFFERLEN 1
+
+#include "build/sampletable.c"
 
 struct registration_list
 {
@@ -26,7 +27,7 @@ struct registration_list
 };
 
 static struct registration_list reglist[1];
-static uint32_t samplebuffer[BUFFERLEN];
+static uint32_t samplebuffer[SAMPLEBYTES/4];
 
 // Turn a control bit on and off to indicate a reset.
 inline void reset_peri_reg(uint32_t reg, uint32_t mask) {
@@ -95,10 +96,17 @@ void begin_i2s(uint32_t input_clock_prescaler, uint32_t communication_clock_freq
     SET_PERI_REG_MASK(I2SCONF, I2S_I2S_TX_START);
 }
 
+// Load a sample from 0 to SAMPLEBITS exclusive into the buffer
+void load_sample(uint16_t sample) {
+    for (int i=0; i<(SAMPLEBYTES/4); ++i) {
+        samplebuffer[i] = sampletable[sample][i];
+    }
+}
+
 void init_reglist() {
-    samplebuffer[0] = 0x137F0000; // Make it mostly on but not entirely
-    reglist[0].blocksize = 4 * BUFFERLEN;
-    reglist[0].datalen = 4 * BUFFERLEN;
+    load_sample(1024);
+    reglist[0].blocksize = SAMPLEBYTES;
+    reglist[0].datalen = SAMPLEBYTES;
     reglist[0].unused = 0;
     reglist[0].sub_sof = 0;
     reglist[0].eof = 1;
