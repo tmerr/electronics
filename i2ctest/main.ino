@@ -27,7 +27,8 @@ struct registration_list
 };
 
 static struct registration_list reglist[1];
-static uint32_t samplebuffer[SAMPLEBYTES/4];
+static const uint32_t buffersize = (1 << BITDEPTH) / 32;
+static uint32_t samplebuffer[buffersize];
 
 // Turn a control bit on and off to indicate a reset.
 inline void reset_peri_reg(uint32_t reg, uint32_t mask) {
@@ -98,15 +99,27 @@ void begin_i2s(uint32_t input_clock_prescaler, uint32_t communication_clock_freq
 
 // Load a sample from 0 to SAMPLEBITS exclusive into the buffer
 void load_sample(uint16_t sample) {
-    for (int i=0; i<(SAMPLEBYTES/4); ++i) {
+    for (int i=0; i<buffersize; ++i) {
         samplebuffer[i] = sampletable[sample][i];
     }
 }
 
+void load_float_sample(double sample) {
+    if (sample < 0.0) {
+        sample = 0.0;
+    }
+    const uint32_t maximum = (1 << BITDEPTH) - 1;
+    uint32_t scaled = (uint32_t)(sample * maximum);
+    if (scaled > maximum) {
+        scaled = maximum;
+    }
+    load_sample(scaled);
+}
+
 void init_reglist() {
     load_sample(1024);
-    reglist[0].blocksize = SAMPLEBYTES;
-    reglist[0].datalen = SAMPLEBYTES;
+    reglist[0].blocksize = (1 << BITDEPTH) / 8;
+    reglist[0].datalen = (1 << BITDEPTH) / 8;
     reglist[0].unused = 0;
     reglist[0].sub_sof = 0;
     reglist[0].eof = 1;
@@ -119,7 +132,30 @@ void setup() {
     init_reglist();
     begin_slc_i2s(reglist);
     begin_i2s(1, 1);
+
+    pinMode(D5, OUTPUT); // 440Hz for oscilloscope
+    pinMode(D6, OUTPUT); // detect how often we change sin
 }
 
+int toggle = false;
 void loop() {
+    if (toggle) {
+        digitalWrite(D6, HIGH);
+    } else {
+        digitalWrite(D6, LOW);
+    }
+    toggle = !toggle;
+
+    uint32_t cycles = ESP.getCycleCount();
+    double secondprogress = (double)ESP.getCycleCount() / 80000000.0;
+    double freq = 440.0;
+    double sineoutput = sin(freq * secondprogress * 2.0 * M_PI);
+
+    if (sineoutput > 0.0) {
+        digitalWrite(D5, HIGH);
+    } else {
+        digitalWrite(D5, LOW);
+    }
+
+    load_float_sample(1.0 + 0.5 * sineoutput);
 }

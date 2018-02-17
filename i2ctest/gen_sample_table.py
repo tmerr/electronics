@@ -76,7 +76,7 @@ def run(bitdepth):
         pass
 
     with open('build/sampletable.c', 'w') as f:
-        f.write('#define SAMPLEBYTES {}\n'.format(4 * columns))
+        f.write('#define BITDEPTH {}\n'.format(bitdepth))
         f.write(table)
 
 
