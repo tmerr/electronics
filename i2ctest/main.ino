@@ -11,8 +11,13 @@ void rom_i2c_writeReg_Mask(int, int, int, int, int, int);
 #include "slc_register.h"
 #include "i2s_reg.h"
 
+#include <ESP8266WiFi.h>
+
 #include "build/sampletable.c"
 #include "SineWave.hpp"
+
+#define CPUMHZ 160
+#define CPUHZ (CPUMHZ * 1000000)
 
 struct registration_list
 {
@@ -130,9 +135,15 @@ void init_reglist() {
 }
 
 void setup() {
+    system_update_cpu_freq(160);
+
+    WiFi.mode(WIFI_OFF);
+    WiFi.forceSleepBegin();
+    delay(1);
+
     init_reglist();
     begin_slc_i2s(reglist);
-    begin_i2s(1, 1);
+    begin_i2s(1, 2);
 
     pinMode(D5, OUTPUT); // 440Hz for oscilloscope
     pinMode(D6, OUTPUT); // detect how often we change sin
@@ -141,8 +152,7 @@ void setup() {
 SineWave sinewave(440);
 int toggle = false;
 uint32_t counter = 0;
-void loop() {
-
+void loopiter() {
     if (toggle) {
         digitalWrite(D6, HIGH);
     } else {
@@ -151,13 +161,17 @@ void loop() {
     toggle = !toggle;
 
     uint32_t cycles = ESP.getCycleCount();
-    double secondprogress = (double)ESP.getCycleCount() / 80000000.0;
+    double secondprogress = (double)ESP.getCycleCount() / CPUHZ;
 
     ++counter;
-    if (counter == 100) {
+    if (false) {
+    //if (counter == 100) {
         counter = 0;
         int reading = analogRead(A0);
-        double normalized = (double)reading/1023.0;
+        double normalized = (double)reading/1023.0 - 0.2;
+        if (normalized < 0.0) {
+            normalized = 0.0;
+        }
         sinewave.setFrequency(5000.0 * normalized, secondprogress);
     }
 
@@ -170,4 +184,12 @@ void loop() {
     }
 
     load_float_sample(sineoutput);
+}
+
+void loop() {
+    noInterrupts();
+    while (true) {
+        ESP.wdtFeed();
+        loopiter();
+    }
 }
