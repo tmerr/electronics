@@ -12,6 +12,7 @@ void rom_i2c_writeReg_Mask(int, int, int, int, int, int);
 #include "i2s_reg.h"
 
 #include "build/sampletable.c"
+#include "SineWave.hpp"
 
 struct registration_list
 {
@@ -137,8 +138,11 @@ void setup() {
     pinMode(D6, OUTPUT); // detect how often we change sin
 }
 
+SineWave sinewave(440);
 int toggle = false;
+uint32_t counter = 0;
 void loop() {
+
     if (toggle) {
         digitalWrite(D6, HIGH);
     } else {
@@ -148,14 +152,22 @@ void loop() {
 
     uint32_t cycles = ESP.getCycleCount();
     double secondprogress = (double)ESP.getCycleCount() / 80000000.0;
-    double freq = 440.0;
-    double sineoutput = sin(freq * secondprogress * 2.0 * M_PI);
 
-    if (sineoutput > 0.0) {
+    ++counter;
+    if (counter == 100) {
+        counter = 0;
+        int reading = analogRead(A0);
+        double normalized = (double)reading/1023.0;
+        sinewave.setFrequency(5000.0 * normalized, secondprogress);
+    }
+
+    double sineoutput = sinewave.sample(secondprogress);
+
+    if (sineoutput > 0.5) {
         digitalWrite(D5, HIGH);
     } else {
         digitalWrite(D5, LOW);
     }
 
-    load_float_sample(1.0 + 0.5 * sineoutput);
+    load_float_sample(sineoutput);
 }
