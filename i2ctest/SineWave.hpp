@@ -6,7 +6,7 @@ class SineWave {
 public:
     SineWave(double freq);
     void setFrequency(double newfreq, double time);
-    double sample(double time);
+    uint16_t sample(double time);
 
 private:
     double freq;

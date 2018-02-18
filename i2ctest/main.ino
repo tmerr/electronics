@@ -153,13 +153,6 @@ SineWave sinewave(440);
 int toggle = false;
 uint32_t counter = 0;
 void loopiter() {
-    if (toggle) {
-        digitalWrite(D6, HIGH);
-    } else {
-        digitalWrite(D6, LOW);
-    }
-    toggle = !toggle;
-
     uint32_t cycles = ESP.getCycleCount();
     double secondprogress = (double)ESP.getCycleCount() / CPUHZ;
 
@@ -175,15 +168,17 @@ void loopiter() {
         sinewave.setFrequency(5000.0 * normalized, secondprogress);
     }
 
-    double sineoutput = sinewave.sample(secondprogress);
+    uint16_t sineoutput = sinewave.sample(secondprogress);
 
-    if (sineoutput > 0.5) {
+    if (sineoutput > 1023) {
         digitalWrite(D5, HIGH);
     } else {
         digitalWrite(D5, LOW);
     }
 
-    load_float_sample(sineoutput);
+    digitalWrite(D6, LOW);
+    load_sample(sineoutput);
+    digitalWrite(D6, HIGH);
 }
 
 void loop() {

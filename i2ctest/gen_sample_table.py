@@ -81,5 +81,5 @@ def run(bitdepth):
 
 
 if __name__ == '__main__':
-    bitdepth = 11
-    run(bitdepth)
+    import settings
+    run(settings.BITDEPTH)
