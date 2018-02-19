@@ -10,3 +10,6 @@ build/sampletable.c: gen_sample_table.py settings.py
 
 build/sintable.c: gen_sin_table.py settings.py
 	python3 gen_sin_table.py
+
+build/knobtable.c: gen_knob_table.py settings.py
+	python3 gen_knob_table.py

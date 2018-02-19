@@ -14,6 +14,7 @@ void rom_i2c_writeReg_Mask(int, int, int, int, int, int);
 #include <ESP8266WiFi.h>
 
 #include "build/sampletable.c"
+#include "build/knobtable.c"
 #include "SineWave.hpp"
 
 #define CPUMHZ 160
@@ -137,33 +138,31 @@ void setup() {
 SineWave sinewave(CPUHZ/440);
 int toggle = false;
 uint32_t counter = 0;
+uint32_t countermaxi = 0;
+//uint32_t countermax[5] = {101, 107, 127, 137, 157};
+uint32_t countermax[37] = {137, 163, 157, 239, 191, 197, 181, 149, 79, 199, 167, 223, 89, 229, 83, 97, 139, 173, 233, 107, 193, 67, 109, 227, 71, 61, 241, 103, 131, 113, 211, 251, 127, 73, 101, 179, 151};
 void loopiter() {
+    digitalWrite(D6, HIGH);
     uint32_t cycles = ESP.getCycleCount();
     ++counter;
     uint32_t sample;
-    if (counter == 100) {
+    if (counter == countermax[countermaxi]) {
         counter = 0;
-        int reading = analogRead(A0) - 23; // at most 1023, fudged cause it reads too high
-        if (reading < 0) {
-            reading = 0;
-        }
-        // will be between 0 and 1, because math
-        digitalWrite(D6, HIGH);
-        double norm = pow(pow(2.0, 1/1000.0), reading) - 1;
-        digitalWrite(D6, LOW);
-        uint32_t period = (uint32_t)(CPUHZ / (norm * 10000.0));
-        sample = sinewave.sampleAndChangePeriod(cycles, period);
+        countermaxi = (countermaxi + 1) % 37;
+        int reading = analogRead(A0);
+        sample = sinewave.sampleAndChangePeriod(cycles, knobtable[reading]);
     } else {
         sample = sinewave.sample(cycles);
     }
 
-    if (sample > 1023) {
+    if (sample > (1 << BITDEPTH)/2) {
         digitalWrite(D5, HIGH);
     } else {
         digitalWrite(D5, LOW);
     }
 
     load_sample(sample);
+    digitalWrite(D6, LOW);
 }
 
 void loop() {
