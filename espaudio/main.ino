@@ -120,7 +120,7 @@ void init_reglist() {
 }
 
 void setup() {
-    system_update_cpu_freq(160);
+    system_update_cpu_freq(CPUMHZ);
 
     WiFi.mode(WIFI_OFF);
     WiFi.forceSleepBegin();
@@ -134,37 +134,36 @@ void setup() {
     pinMode(D6, OUTPUT); // detect how often we change sin
 }
 
-SineWave sinewave(440);
+SineWave sinewave(CPUHZ/440);
 int toggle = false;
 uint32_t counter = 0;
 void loopiter() {
     uint32_t cycles = ESP.getCycleCount();
-    double secondprogress = (double)ESP.getCycleCount() / CPUHZ;
-
     ++counter;
-    if (counter == 1000) {
+    uint32_t sample;
+    if (counter == 100) {
         counter = 0;
         int reading = analogRead(A0) - 23; // at most 1023, fudged cause it reads too high
         if (reading < 0) {
             reading = 0;
         }
-
         // will be between 0 and 1, because math
+        digitalWrite(D6, HIGH);
         double norm = pow(pow(2.0, 1/1000.0), reading) - 1;
-        sinewave.setFrequency(10000.0 * norm, secondprogress);
+        digitalWrite(D6, LOW);
+        uint32_t period = (uint32_t)(CPUHZ / (norm * 10000.0));
+        sample = sinewave.sampleAndChangePeriod(cycles, period);
+    } else {
+        sample = sinewave.sample(cycles);
     }
 
-    digitalWrite(D6, LOW);
-    uint16_t sineoutput = sinewave.sample(secondprogress);
-    digitalWrite(D6, HIGH);
-
-    if (sineoutput > 1023) {
+    if (sample > 1023) {
         digitalWrite(D5, HIGH);
     } else {
         digitalWrite(D5, LOW);
     }
 
-    load_sample(sineoutput);
+    load_sample(sample);
 }
 
 void loop() {
