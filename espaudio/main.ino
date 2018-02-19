@@ -144,12 +144,14 @@ void loopiter() {
     ++counter;
     if (counter == 1000) {
         counter = 0;
-        int reading = analogRead(A0);
-        double normalized = (double)reading/1023.0 - 0.2;
-        if (normalized < 0.0) {
-            normalized = 0.0;
+        int reading = analogRead(A0) - 23; // at most 1023, fudged cause it reads too high
+        if (reading < 0) {
+            reading = 0;
         }
-        sinewave.setFrequency(5000.0 * normalized, secondprogress);
+
+        // will be between 0 and 1, because math
+        double norm = pow(pow(2.0, 1/1000.0), reading) - 1;
+        sinewave.setFrequency(10000.0 * norm, secondprogress);
     }
 
     digitalWrite(D6, LOW);
