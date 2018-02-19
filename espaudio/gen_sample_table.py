@@ -1,7 +1,7 @@
 import os
 
 
-template = 'const uint32_t sampletable[{rows}][{columns}] PROGMEM = \n{datastr};\n'
+template = 'static uint32_t sampletable[{rows}][{columns}] = \n{datastr};\n'
 
 
 def build_bitstring(intval, bitdepth):

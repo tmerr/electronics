@@ -5,12 +5,12 @@
 SineWave::SineWave(double newfreq): freq(newfreq), phase(0) {}
 
 void SineWave::setFrequency(double newfreq, double time) {
-    phase += 2.0 * M_PI * time * (freq - newfreq);
-    phase = fmod(phase, 2 * M_PI);
+    phase += SINRESOLUTION * time * (freq - newfreq);
+    phase = fmod(phase, SINRESOLUTION);
     freq = newfreq;
 }
 
 uint16_t SineWave::sample(double time) {
-    uint16_t idx = (uint16_t)fmod(SINRESOLUTION * freq * time, SINRESOLUTION);
+    uint16_t idx = (uint16_t)fmod(SINRESOLUTION * freq * time + phase, SINRESOLUTION);
     return sinetable[idx];
 }

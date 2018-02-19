@@ -21,15 +21,15 @@ void rom_i2c_writeReg_Mask(int, int, int, int, int, int);
 
 struct registration_list
 {
-	uint32	blocksize:12;
-	uint32	datalen:12;
-	uint32	unused:5;
-	uint32	sub_sof:1;
-	uint32 	eof:1;
-	uint32	owner:1;
+    uint32_t blocksize:12;
+    uint32_t datalen:12;
+    uint32_t unused:5;
+    uint32_t sub_sof:1;
+    uint32_t eof:1;
+    uint32_t owner:1;
 
-	uint32	buf_ptr;
-	uint32	next_link_ptr;
+    uint32_t buf_ptr;
+    uint32_t next_link_ptr;
 };
 
 static struct registration_list reglist[1];
@@ -65,7 +65,7 @@ void begin_slc_i2s(struct registration_list* reglist) {
 
     // 10.2.3.2
     CLEAR_PERI_REG_MASK(SLC_RX_LINK,SLC_RXLINK_DESCADDR_MASK);
-	SET_PERI_REG_MASK(SLC_RX_LINK, ((uint32)reglist) & SLC_RXLINK_DESCADDR_MASK);
+    SET_PERI_REG_MASK(SLC_RX_LINK, ((uint32)reglist) & SLC_RXLINK_DESCADDR_MASK);
 
     // 10.2.3.3
     SET_PERI_REG_MASK(SLC_RX_LINK, SLC_RXLINK_START);
@@ -87,39 +87,24 @@ void begin_i2s(uint32_t input_clock_prescaler, uint32_t communication_clock_freq
     CLEAR_PERI_REG_MASK(I2S_FIFO_CONF, I2S_I2S_TX_FIFO_MOD<<I2S_I2S_TX_FIFO_MOD_S);
  
     // 10.2.1.4 channel mode: Clear leaving it as dual channel.
-	CLEAR_PERI_REG_MASK(I2SCONF_CHAN, I2S_TX_CHAN_MOD<<I2S_TX_CHAN_MOD_S);
+    CLEAR_PERI_REG_MASK(I2SCONF_CHAN, I2S_TX_CHAN_MOD<<I2S_TX_CHAN_MOD_S);
 
     // This is mostly copy pasted from the channel3 code.
     // Removed the I2S_RECE_SLAVE_MOD because we're not receiving.
     // Removed the I2S_RECE_MSB_SHIFT because we're not receiving.
-	CLEAR_PERI_REG_MASK(I2SCONF, I2S_TRANS_SLAVE_MOD|
-						(I2S_BITS_MOD<<I2S_BITS_MOD_S)|
-						(I2S_BCK_DIV_NUM <<I2S_BCK_DIV_NUM_S)|
-						(I2S_CLKM_DIV_NUM<<I2S_CLKM_DIV_NUM_S));
-	SET_PERI_REG_MASK(I2SCONF,
-						(((communication_clock_freq_divider)&I2S_BCK_DIV_NUM ) << I2S_BCK_DIV_NUM_S)|
-						(((input_clock_prescaler)&I2S_CLKM_DIV_NUM) << I2S_CLKM_DIV_NUM_S));
+    CLEAR_PERI_REG_MASK(I2SCONF, I2S_TRANS_SLAVE_MOD|
+                        (I2S_BITS_MOD<<I2S_BITS_MOD_S)|
+                        (I2S_BCK_DIV_NUM <<I2S_BCK_DIV_NUM_S)|
+                        (I2S_CLKM_DIV_NUM<<I2S_CLKM_DIV_NUM_S));
+    SET_PERI_REG_MASK(I2SCONF,
+                        (((communication_clock_freq_divider)&I2S_BCK_DIV_NUM ) << I2S_BCK_DIV_NUM_S)|
+                        (((input_clock_prescaler)&I2S_CLKM_DIV_NUM) << I2S_CLKM_DIV_NUM_S));
 
     SET_PERI_REG_MASK(I2SCONF, I2S_I2S_TX_START);
 }
 
-// Load a sample from 0 to SAMPLEBITS exclusive into the buffer
 void load_sample(uint16_t sample) {
-    for (int i=0; i<buffersize; ++i) {
-        samplebuffer[i] = sampletable[sample][i];
-    }
-}
-
-void load_float_sample(double sample) {
-    if (sample < 0.0) {
-        sample = 0.0;
-    }
-    const uint32_t maximum = (1 << BITDEPTH) - 1;
-    uint32_t scaled = (uint32_t)(sample * maximum);
-    if (scaled > maximum) {
-        scaled = maximum;
-    }
-    load_sample(scaled);
+    reglist[0].buf_ptr = reinterpret_cast<uint32_t>(&sampletable[sample]);
 }
 
 void init_reglist() {
@@ -157,8 +142,7 @@ void loopiter() {
     double secondprogress = (double)ESP.getCycleCount() / CPUHZ;
 
     ++counter;
-    if (false) {
-    //if (counter == 100) {
+    if (counter == 1000) {
         counter = 0;
         int reading = analogRead(A0);
         double normalized = (double)reading/1023.0 - 0.2;
@@ -168,7 +152,9 @@ void loopiter() {
         sinewave.setFrequency(5000.0 * normalized, secondprogress);
     }
 
+    digitalWrite(D6, LOW);
     uint16_t sineoutput = sinewave.sample(secondprogress);
+    digitalWrite(D6, HIGH);
 
     if (sineoutput > 1023) {
         digitalWrite(D5, HIGH);
@@ -176,9 +162,7 @@ void loopiter() {
         digitalWrite(D5, LOW);
     }
 
-    digitalWrite(D6, LOW);
     load_sample(sineoutput);
-    digitalWrite(D6, HIGH);
 }
 
 void loop() {
