@@ -1,6 +1,6 @@
 PORT = /dev/ttyUSB0
 
-all: build/sampletable.c build/sintable.c
+all: build/sampletable.c build/sintable.c build/knobtable.c
 	arduino --upload main.ino --port $(PORT)
 	stty -F $(PORT) min 0 time 0 cs8 115200 ignbrk -brkint -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke noflsh -ixon -crtscts
 	tail -f $(PORT)
