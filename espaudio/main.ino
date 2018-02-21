@@ -16,9 +16,24 @@ void rom_i2c_writeReg_Mask(int, int, int, int, int, int);
 #include "build/sampletable.c"
 #include "build/knobtable.c"
 #include "SineWave.hpp"
+#include "analogReadNonblocking.hpp"
 
 #define CPUMHZ 160
 #define CPUHZ (CPUMHZ * 1000000)
+
+#define COMBINEHELPER(a, b) a##b
+#define COMBINE(a, b) COMBINEHELPER(a, b)
+#define BENCH(x) \
+    uint32_t COMBINE(cyclestart, __LINE__) = ESP.getCycleCount(); \
+    x \
+    uint32_t COMBINE(cyclestop, __LINE__) = ESP.getCycleCount(); \
+    Serial.print("cycles at "); \
+    Serial.print(__FILE__); \
+    Serial.print(":"); \
+    Serial.print(__LINE__); \
+    Serial.print(": "); \
+    /* fudged to account for how benching nothing measured 2 cycles */ \
+    Serial.println(COMBINE(cyclestop, __LINE__) - COMBINE(cyclestart, __LINE__) - 2);
 
 struct registration_list
 {
@@ -131,25 +146,21 @@ void setup() {
     begin_slc_i2s(reglist);
     begin_i2s(1, 2);
 
+    analogReadStart();
+
+    //Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
+
     pinMode(D5, OUTPUT); // 440Hz for oscilloscope
     pinMode(D6, OUTPUT); // detect how often we change sin
 }
 
 SineWave sinewave(CPUHZ/440);
-int toggle = false;
-uint32_t counter = 0;
-uint32_t countermaxi = 0;
-//uint32_t countermax[5] = {101, 107, 127, 137, 157};
-uint32_t countermax[37] = {137, 163, 157, 239, 191, 197, 181, 149, 79, 199, 167, 223, 89, 229, 83, 97, 139, 173, 233, 107, 193, 67, 109, 227, 71, 61, 241, 103, 131, 113, 211, 251, 127, 73, 101, 179, 151};
 void loopiter() {
     digitalWrite(D6, HIGH);
     uint32_t cycles = ESP.getCycleCount();
-    ++counter;
     uint32_t sample;
-    if (counter == countermax[countermaxi]) {
-        counter = 0;
-        countermaxi = (countermaxi + 1) % 37;
-        int reading = analogRead(A0);
+    uint16_t reading;
+    if (analogReadNonblocking(&reading, true)) {
         sample = sinewave.sampleAndChangePeriod(cycles, knobtable[reading]);
     } else {
         sample = sinewave.sample(cycles);
