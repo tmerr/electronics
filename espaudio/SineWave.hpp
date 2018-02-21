@@ -2,9 +2,6 @@
 #define SINEWAVE_HPP
 #include "Arduino.h"
 
-// A sine wave using fixed point arithmetic. Keeps track of some state for
-// quickly updating the phase so the wave doesn't jump with a change in
-// period.
 class SineWave {
 public:
     SineWave(uint32_t period);
